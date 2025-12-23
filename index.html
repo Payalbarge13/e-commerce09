@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>E-Commerce + Discount + Total Price + Location</title>
+
+<style>
+body {margin:0; font-family:Arial; background:#f5f5f5;}
+header {background:#222; color:#fff; padding:15px 20px; display:flex; justify-content:space-between; align-items:center;}
+header h1 {margin:0;}
+nav a {color:#fff; margin-left:15px; text-decoration:none;}
+.container {padding:20px; max-width:1200px; margin:auto;}
+.product-grid {display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:20px;}
+
+.product-card {background:#fff; padding:10px; border-radius:10px; text-align:center; cursor:pointer;
+ box-shadow:0 0 10px rgba(0,0,0,0.1);}
+.product-card img {width:100%; height:180px; object-fit:cover; border-radius:8px;}
+.rating {color:#ffaa00;}
+
+.btn {background:#222; color:#fff; padding:10px; border-radius:6px; width:100%; cursor:pointer; border:none; margin-top:8px;}
+.btn:hover {background:#444;}
+
+.order-form {background:#fff; padding:15px; border-radius:10px; margin-top:20px;}
+.order-form input, .order-form textarea {width:100%; padding:8px; margin:8px 0; border-radius:5px; border:1px solid #ccc;}
+
+.modal {display:none; position:fixed; inset:0; background:rgba(0,0,0,0.7); justify-content:center; align-items:center;}
+.modal-content {background:#fff; padding:20px; border-radius:10px; width:100%; max-width:400px;}
+
+#successPage {display:none; text-align:center; padding:40px;}
+footer {background:#222; color:#fff; text-align:center; padding:15px;}
+</style>
+</head>
+<body>
+
+<header>
+    <h1>Shop Showcase</h1>
+    <nav>
+        <a href="#">Home</a>
+        <a href="#">Cart (<span id="cartCount">0</span>)</a>
+    </nav>
+</header>
+
+<!-- MAIN PAGE -->
+<div id="mainPage" class="container">
+
+    <div class="product-grid">
+
+        <!-- PRODUCT 1 -->
+        <div class="product-card" onclick="openModal('Running Shoes',850,
+        'https://m.media-amazon.com/images/I/61e6ved+oZL._SY500_.jpg','Comfortable shoes.',
+        ['Lightweight','Non-slip','Breathable'],4.5)">
+            <img src="https://m.media-amazon.com/images/I/61e6ved+oZL._SY500_.jpg">
+            <h3>Running Shoes</h3>
+            <p>₹850</p>
+            <div class="rating">★★★★☆ 4.5</div>
+        </div>
+
+        <!-- PRODUCT 2 -->
+        <div class="product-card" onclick="openModal('Casual T-Shirt',350,
+        'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab','Soft cotton.',
+        ['100% Cotton','Regular Fit','Durable'],4.2)">
+            <img src="https://images.unsplash.com/photo-1521572163474-6864f9cf17ab">
+            <h3>Casual T-Shirt</h3>
+            <p>₹350</p>
+            <div class="rating">★★★★☆ 4.2</div>
+        </div>
+
+        <!-- PRODUCT 3 -->
+        <div class="product-card" onclick="openModal('Men’s Watch',1400,
+        'https://m.media-amazon.com/images/I/51ykbSj-eoL._SX679_.jpg','Premium watch.',
+        ['Waterproof','Steel','1-year warranty'],4.8)">
+            <img src="https://m.media-amazon.com/images/I/51ykbSj-eoL._SX679_.jpg">
+            <h3>Men's Watch</h3>
+            <p>₹1400</p>
+            <div class="rating">★★★★★ 4.8</div>
+        </div>
+         <!-- PRODUCT 4 -->
+        <div class="product-card" onclick="openModal('Woman’s Watch',1800,
+        'https://img.joomcdn.net/ed0fb5ca6efe2d7c283225c5195a00b7cdb4f201_original.jpeg','Premium watch.',
+        ['Waterproof','Steel','1-year warranty'],4.8)">
+            <img src="https://img.joomcdn.net/ed0fb5ca6efe2d7c283225c5195a00b7cdb4f201_original.jpeg">
+            <h3>Woman's Watch</h3>
+            <p>₹1800</p>
+            <div class="rating">★★★★★ 5.0</div>
+        </div>
+
+    </div>
+
+    <!-- ORDER FORM -->
+    <div class="order-form">
+        <h3>Place Your Order</h3>
+
+        <input type="text" id="customerName" placeholder="Full Name">
+        <input type="email" id="customerEmail" placeholder="Email">
+        <textarea id="customerAddress" placeholder="Address"></textarea>
+
+        <!-- DISCOUNT CODE -->
+        <input type="text" id="discountCode" placeholder="Enter Discount Code (SAVE10)">
+        <button class="btn" onclick="applyDiscount()">Apply Discount</button>
+
+        <p><b>Total Price:</b> ₹<span id="totalPrice">0</span></p>
+
+        <button class="btn" onclick="getLocation()"> LIVE Location</button>
+        <button class="btn" onclick="placeOrder()">Buy Now</button>
+    </div>
+</div>
+
+<!-- SUCCESS PAGE -->
+<div id="successPage">
+    <h2>✔ Order Successful!</h2>
+    <p id="successMsg"></p>
+
+    <button class="btn" onclick="goHome()" style="max-width:200px;">Back Home</button>
+    <button class="btn" onclick="cancelOrder()" style="max-width:200px; background:#b30000; margin-top:10px;">❌ Cancel Order</button>
+</div>
+
+<!-- PRODUCT MODAL -->
+<div class="modal" id="productModal">
+    <div class="modal-content">
+        <span onclick="closeModal()" style="float:right; cursor:pointer;">&times;</span>
+        <img id="modalImg" style="width:100%; border-radius:8px;">
+        <h2 id="modalTitle"></h2>
+        <p id="modalPrice"></p>
+        <p id="modalRating"></p>
+        <p id="modalDesc"></p>
+        <ul id="modalFeatures"></ul>
+
+        <button class="btn" onclick="addToCart()">Add to Cart</button>
+    </div>
+</div>
+
+<footer>© 2025 Shop — Discounts Added</footer>
+
+<script>
+let selectedProduct = "";
+let selectedPrice = 0;
+let cartCount = 0;
+let discountAmount = 0;
+let finalPrice = 0;
+let autoLocation = {lat:"", lon:""};
+
+function openModal(name, price, img, desc, features, rating){
+    selectedProduct = name;
+    selectedPrice = price;
+
+    document.getElementById("modalTitle").innerText = name;
+    document.getElementById("modalPrice").innerText = "Price: ₹" + price;
+    document.getElementById("modalImg").src = img;
+    document.getElementById("modalDesc").innerText = desc;
+
+    document.getElementById("modalRating").innerText = "Rating: " + rating + " ★";
+
+    let list = "";
+    features.forEach(f => list += `<li>${f}</li>`);
+    document.getElementById("modalFeatures").innerHTML = list;
+
+    document.getElementById("productModal").style.display = "flex";
+}
+
+function closeModal(){ document.getElementById("productModal").style.display="none"; }
+
+function addToCart(){
+    cartCount++;
+    document.getElementById("cartCount").innerText = cartCount;
+
+    finalPrice += selectedPrice;
+    document.getElementById("totalPrice").innerText = finalPrice;
+
+    alert(selectedProduct + " added!");
+    closeModal();
+}
+
+function applyDiscount(){
+    let code = document.getElementById("discountCode").value.trim().toUpperCase();
+
+    if(code === "SAVE10") discountAmount = finalPrice * 0.10;
+    else if(code === "SAVE20") discountAmount = finalPrice * 0.20;
+    else if(code === "FREESHIP") discountAmount = 50;
+    else { alert("Invalid Code"); return; }
+
+    finalPrice = finalPrice - discountAmount;
+
+    document.getElementById("totalPrice").innerText = finalPrice;
+    alert("Discount Applied!");
+}
+
+function getLocation(){
+    if(navigator.geolocation){
+        navigator.geolocation.getCurrentPosition(p=>{
+            autoLocation.lat = p.coords.latitude;
+            autoLocation.lon = p.coords.longitude;
+
+            document.getElementById("customerAddress").value =
+            `Latitude: ${autoLocation.lat}\nLongitude: ${autoLocation.lon}`;
+        });
+    }
+}
+
+function placeOrder(){
+    if(cartCount===0){ alert("Cart empty!"); return; }
+
+    let name = document.getElementById("customerName").value.trim();
+    let email = document.getElementById("customerEmail").value.trim();
+
+    if(!name || !email){ alert("Fill all details!"); return; }
+
+    document.getElementById("mainPage").style.display="none";
+    document.getElementById("successPage").style.display="block";
+
+    document.getElementById("successMsg").innerHTML = `
+        <b>Name:</b> ${name}<br>
+        <b>Email:</b> ${email}<br>
+        <b>Total Price:</b> ₹${finalPrice}<br>
+        <b>Discount:</b> ₹${discountAmount}<br><br>
+        <b>Location:</b><br>
+        Lat: ${autoLocation.lat}<br>Lon: ${autoLocation.lon}
+    `;
+}
+
+function cancelOrder(){
+    alert("Order Cancelled");
+
+    cartCount = 0;
+    finalPrice = 0;
+    discountAmount = 0;
+
+    document.getElementById("cartCount").innerText = 0;
+    document.getElementById("totalPrice").innerText = 0;
+
+    goHome();
+}
+
+function goHome(){
+    document.getElementById("successPage").style.display="none";
+    document.getElementById("mainPage").style.display="block";
+}
+</script>
+
+</body>
+</html>
